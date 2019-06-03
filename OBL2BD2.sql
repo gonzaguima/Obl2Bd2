@@ -2,11 +2,19 @@
 
 --1)
 CREATE PROCEDURE SaldosDeCuentaCliente 
-@cuenta int, @desde character(10), @hasta character(10), @out int out
+@cuenta int, @desde character(10), @hasta character(10), @saldoinicial int out, @saldofinal int out
 AS
 BEGIN
-	
-	PRINT 'X' + asd
+	SELECT @saldoinicial = (SELECT SUM(ImporteMovim)
+							FROM Movimiento m
+							WHERE m.IdCuenta = @cuenta AND
+								  m.FchMovim <= @desde)
+
+	SELECT @saldoinicial = (SELECT SUM(ImporteMovim)
+							FROM Movimiento m
+							WHERE m.IdCuenta = @cuenta AND
+								  m.FchMovim  >= @hasta)
+
 END
 
 
