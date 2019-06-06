@@ -26,3 +26,8 @@ END
 
 /*e.	Implementar un disparador que controle el borrado de una sucursal, para permitir el mismo, dicho disparador debe 
 “mover” antes todas las cuentas a la sucursal más antigua del banco (obtener la sucursal más antigua de acuerdo a los movimientos).*/
+
+Select top 1 s.IdSucursal --La sucursal mas antigua
+From Sucursal s, Movimiento m, Cuenta c
+Where s.IdSucursal = c.IdSucursal and
+		c.IdCuenta = m.IdCuenta
