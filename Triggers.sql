@@ -14,7 +14,11 @@ ON Movimiento
 INSTEAD OF INSERT
 AS
 BEGIN
-	
+	IF NOT EXISTS (Select * 
+				From Cuenta
+				Where Cuenta.SaldoCuenta > 0 and
+					Cuenta.IdTipo) --Ver el tipo de transaccion sea Salida
+									--Tomar los valores de la consulta e insertarlos
 END
 
 /*d.	Mediante un disparador, no permitir crear una nueva cuenta si el cliente ya tiene una cuenta en la misma moneda y en la misma sucursal.*/
