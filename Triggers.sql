@@ -11,14 +11,14 @@ El campo idAudit debe ser autoincremental y fchAudit también debe registrar la h
 /*c.	Mediante el uso de un disparador, no permitir ingresar un Movimiento de Salida de una cuenta que no tenga saldo.*/
 CREATE TRIGGER movimientoSalida
 ON Movimiento
-INSTEAD OF INSERT
+AFTER INSERT
 AS
 BEGIN
 	IF NOT EXISTS (Select * 
 				From Cuenta
 				Where Cuenta.SaldoCuenta > 0 and
 					Cuenta.IdTipo) --Ver el tipo de transaccion sea Salida
-									--Tomar los valores de la consulta e insertarlos
+									--Tomar los valores de la tabla insert y eliminarlos
 END
 
 /*d.	Mediante un disparador, no permitir crear una nueva cuenta si el cliente ya tiene una cuenta en la misma moneda y en la misma sucursal.*/
