@@ -1,8 +1,8 @@
 /*OBLIGATORIO 2*/
 
 --1)
-CREATE PROCEDURE SaldosDeCuentaCliente 
-@cuenta int, @desde character(10), @hasta character(10), @saldoinicial int out, @saldofinal int out
+ALTER PROCEDURE SaldosDeCuentaCliente 
+@cuenta int, @desde character(10), @hasta character(10), @saldoinicial int output, @saldofinal int output
 AS
 BEGIN
 	SELECT @saldoinicial = (SELECT SUM(ImporteMovim)
@@ -10,27 +10,28 @@ BEGIN
 							WHERE m.IdCuenta = @cuenta AND
 								  m.FchMovim <= @desde)
 
-	SELECT @saldoinicial = (SELECT SUM(ImporteMovim)
+	SELECT @saldofinal = (SELECT SUM(ImporteMovim)
 							FROM Movimiento m
 							WHERE m.IdCuenta = @cuenta AND
 								  m.FchMovim  >= @hasta)
 
 END
 
+EXECUTE saldosdecuentacliente 1, '01/01/19', '31/12/19'
 
 --2)
 ALTER TABLE Cuenta
 ADD SaldoCuenta money
 
-CREATE PROCEDURE generarSaldos
-AS
-BEGIN
-	UPDATE Cuenta
+--CREATE PROCEDURE generarSaldos
+--AS
+--BEGIN
+--	UPDATE Cuenta
 	
-	SET SaldoCuenta = (SELECT SUM(ImporteMovim)
-					  FROM Movimiento
-					  WHERE cuenta.IdCuenta = Movimiento.IdCuenta)
-END
+--	SET SaldoCuenta = (SELECT SUM(ImporteMovim)
+--					  FROM Movimiento
+--					  WHERE cuenta.IdCuenta = Movimiento.IdCuenta)
+--END
 
 
 ALTER PROCEDURE generarSaldos 
