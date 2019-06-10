@@ -61,14 +61,18 @@ ON Sucursal
 INSTEAD OF DELETE
 AS
 DECLARE 
-	@sucursal char(5)
+	@sucVieja char(5), @sucDel char(5)
 BEGIN
-	Select top 1 @sucursal = s.IdSucursal
+	Select top 1 @sucVieja = s.IdSucursal
 	From Sucursal s, Movimiento m, Cuenta c
 	Where s.IdSucursal = c.IdSucursal and
 			c.IdCuenta = m.IdCuenta
+	Select @sucDel = IdSucursal
+	From deleted
 	Update Cuenta
-	SET IdSucursal = @sucursal
-	Where IdSucursal = (Select IdSucursal
-						From deleted) --VER COMO SOLUCIONAR SI SE BORRA LA SUC MAS ANTIGUA
+	SET IdSucursal = @sucVieja
+	Where IdSucursal = @sucDel --VER COMO SOLUCIONAR SI SE BORRA LA SUC MAS ANTIGUA
+
+	DELETE From Sucursal
+	Where IdSucursal = @sucDel
 END
