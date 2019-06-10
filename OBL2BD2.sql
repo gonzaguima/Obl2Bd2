@@ -1,7 +1,10 @@
 /*OBLIGATORIO 2*/
 
---1)
-ALTER PROCEDURE SaldosDeCuentaCliente 
+-- 1) Crear procedimientos o funciones según corresponda para:
+
+--A) a.	Crear un procedimiento almacenado ‘SaldosDeCuentaCliente' que reciba como parámetros un número de cuenta y
+-- un rango de fechas y retorne por parámetros de salida el saldo anterior a la fecha inicial del rango y el saldo actual a la fecha final del rango.
+CREATE PROCEDURE SaldosDeCuentaCliente 
 @cuenta int, @desde character(10), @hasta character(10), @saldoinicial int output, @saldofinal int output
 AS
 BEGIN
@@ -19,7 +22,9 @@ END
 
 EXECUTE saldosdecuentacliente 1, '01/01/19', '31/12/19'
 
---2)
+--B) Agregar a la tabla Cuentas una campo SaldoCuenta y crear un procedimiento almacenado 'generarSaldos', 
+--que permita cargar el saldo de la cuenta de acuerdo a los movimientos que tiene.
+
 ALTER TABLE Cuenta
 ADD SaldoCuenta money
 
@@ -52,7 +57,8 @@ select * from cuenta
 
 EXECUTE generarSaldos
 
---3)
+--C) Implementar una función ‘verSaldoCuenta’, que reciba como parámetros una cuenta y  
+-- una fecha y retorne el saldo de dicha cuenta a la fecha indicada, no puede utilizar el campo SaldoCuenta.
 
 CREATE FUNCTION verSaldoCuenta(@idCuenta INT, @fecha character(10))
 	RETURNS INT
@@ -75,7 +81,8 @@ END
 
 SELECT DBO.verSaldoCuenta(1, '15/12/2019')
 
---4)
+-- D) Crear una función ‘maximoSaldoCliente’ que dado un cliente y
+-- una moneda retorne el máximo saldo que en el corriente año tuvo dicho cliente para dicha moneda.
 
 CREATE FUNCTION MAXIMOSALDOCLIENTE (@IDCLIENTE INT, @IDMONEDA INT)
 	RETURNS MONEY
@@ -101,7 +108,10 @@ DECLARE @RETORNO MONEY
 
 	RETURN @ENTRADAS - @SALIDAS
 END
---5)
+
+
+-- E) Crear un procedimiento o función ‘sobregiroClienteUSD’, según corresponda, 
+--que reciba un idCliente y retorne nombreCliente e importe de sobregiro en dólares de dicho cliente al día de hoy.
 
 CREATE PROCEDURE SOBREGIROCLIENTEUSD
 @IDCLIENTE INT, @NOMBRECLIENTE VARCHAR(30) OUTPUT, @IMPORTE MONEY OUTPUT
