@@ -9,7 +9,7 @@ BEGIN
 	IF (Select TipoMovim
 		From Inserted) = '' --???
 	INSERT INTO Transferencia (FchTransfer, IdMovim, TipoTransfer, CtaDestino, BancoDestino, StatusTransfer)
-		Values ()
+		Values () --Hay que tomar los datos de inserted
 END
 
 /*b.	Crear un disparador que al modificarse el importe de un movimiento deje un registro en una tabla de auditoría, 
@@ -56,7 +56,16 @@ END
 /*e.	Implementar un disparador que controle el borrado de una sucursal, para permitir el mismo, dicho disparador debe 
 “mover” antes todas las cuentas a la sucursal más antigua del banco (obtener la sucursal más antigua de acuerdo a los movimientos).*/
 
-Select top 1 s.IdSucursal --La sucursal mas antigua
-From Sucursal s, Movimiento m, Cuenta c
-Where s.IdSucursal = c.IdSucursal and
-		c.IdCuenta = m.IdCuenta
+CREATE TRIGGER borradoSucursar
+ON Sucursal
+INSTEAD OF DELETE
+AS
+DECLARE @sucursal = (Select top 1 s.IdSucursal
+					From Sucursal s, Movimiento m, Cuenta c
+					Where s.IdSucursal = c.IdSucursal and
+							c.IdCuenta = m.IdCuenta)
+BEGIN
+	Update Cuenta(IdSucursal = @sucursal)
+	Where IdSucursal = (Select IdSucursal
+						From deleted)
+END
