@@ -60,12 +60,13 @@ CREATE TRIGGER borradoSucursar
 ON Sucursal
 INSTEAD OF DELETE
 AS
-DECLARE @sucursal = (Select top 1 s.IdSucursal
-					From Sucursal s, Movimiento m, Cuenta c
-					Where s.IdSucursal = c.IdSucursal and
-							c.IdCuenta = m.IdCuenta)
+DECLARE @sucursal char(5)
 BEGIN
-	Update Cuenta(IdSucursal = @sucursal)
+	Select top 1 @sucursal = s.IdSucursal
+	From Sucursal s, Movimiento m, Cuenta c
+	Where s.IdSucursal = c.IdSucursal and
+			c.IdCuenta = m.IdCuenta
+	Update Cuenta(IdSucursal) Values(@sucursal)
 	Where IdSucursal = (Select IdSucursal
-						From deleted)
+						From deleted) --VER COMO SOLUCIONAR SI SE BORRA LA SUC MAS ANTIGUA
 END
