@@ -37,7 +37,8 @@ BEGIN
 								i.TipoMovim = 'E'
 END
 
-/*d.	Mediante un disparador, no permitir crear una nueva cuenta si el cliente ya tiene una cuenta en la misma moneda y en la misma sucursal.*/
+/*d.	Mediante un disparador, no permitir crear una nueva cuenta si 
+el cliente ya tiene una cuenta en la misma moneda y en la misma sucursal.*/
 CREATE TRIGGER cuentasRepetidas
 ON Cuenta
 INSTEAD OF INSERT
@@ -45,7 +46,14 @@ AS
 BEGIN
 	IF (Select IdCliente
 		From Inserted) in (Select IdCliente
-							From Cuenta) --No termine
+							From Cuenta c, Sucursal s
+							Where c.IdSucursal = s.IdSucursal and
+									c.IdMoneda != (Select IdMoneda
+													From inserted))
+	BEGIN
+		INSERT INTO Cuenta Values (Select IdTipo, IdMoneda, IdSucursal, IdCliente 
+									from inserted)
+	END
 END
 
 /*e.	Implementar un disparador que controle el borrado de una sucursal, para permitir el mismo, dicho disparador debe 
@@ -73,7 +81,7 @@ BEGIN
 		From Sucursal s, Movimiento m, Cuenta c
 		Where s.IdSucursal = c.IdSucursal and
 				c.IdCuenta = m.IdCuenta and 
-				s.IdSucursal != @sucVieja --VER SI ESTO FUNCIONA BIEN
+				s.IdSucursal != @sucVieja
 		Order by m.FchMovim
 	END
 

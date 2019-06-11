@@ -25,7 +25,8 @@ From (subconsulta de meses) Mes
 
 --B: b.	crear una vista que muestre para cada cliente la cantidad de movimientos que ha realizado discriminado por tipo de movimiento 
 --y la fecha del último movimiento realizado en cada uno de esos tipos de movimientos. En el resultado deben aparecer todos los clientes
-
+CREATE VIEW clienteCantMovim
+AS
 Select NombreCliente, (Select Count(IdMovim)
 						From Movimiento m, Cuenta c
 						Where m.IdCuenta = c.IdCuenta and
@@ -37,3 +38,4 @@ Select NombreCliente, (Select Count(IdMovim)
 								c.IdCliente = cli.IdCliente and
 								TipoMovim = 'S') AS Fecha
 From Cliente cli
+select * from clienteCantMovim
