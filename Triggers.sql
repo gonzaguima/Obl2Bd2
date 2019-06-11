@@ -15,12 +15,24 @@ END
 esta tabla debe tener la siguiente estructura:
 Auditoria(idAudit,fchAudit,idMovim,idCliente,NombreCliente,ImporteAnterior,ImporteActual)
 El campo idAudit debe ser autoincremental y fchAudit también debe registrar la hora*/
+CREATE TABLE Auditoria(idAudit int not null identity,
+						fchAudit datetime,
+						idMovim numeric(5,0) Foreign key references Movimiento(IdMovim),
+						idCliente numeric(5,0) Foreign key references Cliente(IdCliente),
+						NombreCliente varchar(30),
+						ImporteAnterior int,
+						ImporteActual int)
+
+
 CREATE TRIGGER auditMovimiento
 ON Movimiento
-AFTER INSERT
+AFTER UPDATE
 AS
 BEGIN
-	
+	INSERT INTO Auditoria (Select i.IdMovim, c.IdCuenta, cli.NombreCliente, c.SaldoCuenta, (c.SaldoCuenta - i.ImporteMovim) 
+							From inserted i, Cuenta c, Cliente cli
+							Where i.IdCuenta = c.IdCuenta and
+								c.IdCliente = cli.IdCliente) --PORQUE DA ERROR?
 END
 
 /*c.	Mediante el uso de un disparador, no permitir ingresar un Movimiento de Salida de una cuenta que no tenga saldo.*/
