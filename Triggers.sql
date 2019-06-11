@@ -1,6 +1,6 @@
 /*a.	Cuando se ingrese un movimiento de tipo Transferencia, realizar un disparador que registre dicha 
 transferencia en la tabla correspondiente*/
-CREATE TRIGGER auditMovimiento
+CREATE TRIGGER MovimientoTransfer
 ON Movimiento
 AFTER INSERT --AGARRAR EL "C" E INCERTAR LOS QUE SON DE TIPO T
 AS
@@ -29,10 +29,12 @@ ON Movimiento
 AFTER UPDATE
 AS
 BEGIN
-	INSERT INTO Auditoria (Select i.IdMovim, c.IdCuenta, cli.NombreCliente, c.SaldoCuenta, (c.SaldoCuenta - i.ImporteMovim) 
-							From inserted i, Cuenta c, Cliente cli
-							Where i.IdCuenta = c.IdCuenta and
-								c.IdCliente = cli.IdCliente) --PORQUE DA ERROR?
+	INSERT INTO Auditoria 
+	Select i.IdMovim, c.IdCuenta, cli.NombreCliente, c.SaldoCuenta as ImporteActual, 
+				(c.SaldoCuenta - i.ImporteMovim) as ImporteAnterior
+	From inserted i, Cuenta c, Cliente cli
+	Where i.IdCuenta = c.IdCuenta and
+			c.IdCliente = cli.IdCliente
 END
 
 /*c.	Mediante el uso de un disparador, no permitir ingresar un Movimiento de Salida de una cuenta que no tenga saldo.*/
