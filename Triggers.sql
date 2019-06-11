@@ -65,8 +65,8 @@ BEGIN
 									c.IdMoneda != (Select IdMoneda
 													From inserted))
 	BEGIN
-		INSERT INTO Cuenta Values (Select IdTipo, IdMoneda, IdSucursal, IdCliente 
-									from inserted)
+		INSERT INTO Cuenta Select IdTipo, IdMoneda, IdSucursal, IdCliente 
+							from inserted
 	END
 END
 
