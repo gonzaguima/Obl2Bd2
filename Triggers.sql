@@ -58,10 +58,11 @@ AS
 DECLARE 
 	@sucVieja char(5), @sucDel char(5)
 BEGIN
-	Select top 1 @sucVieja = s.IdSucursal
+	Select Top 1 @sucVieja = s.IdSucursal
 	From Sucursal s, Movimiento m, Cuenta c
-	Where s.IdSucursal = c.IdSucursal and --Buscar la mas vieja por las fechas de movimientos
+	Where s.IdSucursal = c.IdSucursal and
 			c.IdCuenta = m.IdCuenta
+	Order by m.FchMovim
 
 	Select @sucDel = IdSucursal
 	From deleted
@@ -72,7 +73,8 @@ BEGIN
 		From Sucursal s, Movimiento m, Cuenta c
 		Where s.IdSucursal = c.IdSucursal and
 				c.IdCuenta = m.IdCuenta and 
-				s.IdSucursal != @sucVieja
+				s.IdSucursal != @sucVieja --VER SI ESTO FUNCIONA BIEN
+		Order by m.FchMovim
 	END
 
 	Update Cuenta
