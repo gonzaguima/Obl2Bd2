@@ -5,10 +5,10 @@ ON Movimiento
 AFTER INSERT --AGARRAR EL "C" E INCERTAR LOS QUE SON DE TIPO T
 AS
 BEGIN
-	IF (Select TipoMovim
-		From Inserted) = '' --???
-	INSERT INTO Transferencia (FchTransfer, IdMovim, TipoTransfer, CtaDestino, BancoDestino, StatusTransfer)
-		Values () --Hay que tomar los datos de inserted
+	INSERT INTO Transferencia Select i.FchMovim, i.IdMovim, null/*TipoTransfer*/, i.IdCuenta /*, BancoDestino, Status???*/
+								From inserted i, Cuenta c
+								Where i.IdCuenta = c.IdCuenta and
+									(i.TipoMovim IN ('T'))
 END
 
 /*b.	Crear un disparador que al modificarse el importe de un movimiento deje un registro en una tabla de auditoría, 
