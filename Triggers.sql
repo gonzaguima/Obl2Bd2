@@ -1,9 +1,8 @@
 /*a.	Cuando se ingrese un movimiento de tipo Transferencia, realizar un disparador que registre dicha 
-transferencia en la tabla correspondiente, si la cuenta destino de la transferencia es una cuenta de otro 
-banco (Externa), que registre como número de cuenta 99999, como nombre de banco ‘Banco Externo’ y como estado ‘Auditoria’.*/
+transferencia en la tabla correspondiente*/
 CREATE TRIGGER auditMovimiento
 ON Movimiento
-AFTER INSERT
+AFTER INSERT --AGARRAR EL "C" E INCERTAR LOS QUE SON DE TIPO T
 AS
 BEGIN
 	IF (Select TipoMovim
@@ -29,17 +28,13 @@ CREATE TRIGGER movimientoSalida
 ON Movimiento
 INSTEAD OF INSERT
 AS
-DECLARE
-	@movim 
 BEGIN
-	IF NOT EXISTS (Select * 
-				From Cuenta c, Movimiento m, Transferencia t
-				Where c.idCuenta = m.idCuenta and
-					m.IdMovim = t.IdMovim
-					Cuenta.SaldoCuenta > 0 and
-					t.TipoTransfer = 'S') --Ver el tipo de transaccion sea Salida
-									--Tomar los valores de la tabla insert y eliminarlos
-	
+	INSERT INTO Movimiento Select i.FchMovim, i.TipoMovim, i.IdCuenta, i.ImporteMovim
+							From inserted i, Cuenta c
+							Where i.IdCuenta = c.IdCuenta and
+								(i.TipoMovim IN ('S', 'T') and
+								i.ImporteMovim <= c.SaldoCuenta) or
+								i.TipoMovim = 'E'
 END
 
 /*d.	Mediante un disparador, no permitir crear una nueva cuenta si el cliente ya tiene una cuenta en la misma moneda y en la misma sucursal.*/
@@ -56,7 +51,7 @@ END
 /*e.	Implementar un disparador que controle el borrado de una sucursal, para permitir el mismo, dicho disparador debe 
 “mover” antes todas las cuentas a la sucursal más antigua del banco (obtener la sucursal más antigua de acuerdo a los movimientos).*/
 
-CREATE TRIGGER borradoSucursar
+ALTER TRIGGER borradoSucursar
 ON Sucursal
 INSTEAD OF DELETE
 AS
@@ -65,13 +60,24 @@ DECLARE
 BEGIN
 	Select top 1 @sucVieja = s.IdSucursal
 	From Sucursal s, Movimiento m, Cuenta c
-	Where s.IdSucursal = c.IdSucursal and
+	Where s.IdSucursal = c.IdSucursal and --Buscar la mas vieja por las fechas de movimientos
 			c.IdCuenta = m.IdCuenta
+
 	Select @sucDel = IdSucursal
 	From deleted
+
+	IF @sucDel = @sucVieja
+	BEGIN
+		Select top 1 @sucVieja = s.IdSucursal
+		From Sucursal s, Movimiento m, Cuenta c
+		Where s.IdSucursal = c.IdSucursal and
+				c.IdCuenta = m.IdCuenta and 
+				s.IdSucursal != @sucVieja
+	END
+
 	Update Cuenta
 	SET IdSucursal = @sucVieja
-	Where IdSucursal = @sucDel --VER COMO SOLUCIONAR SI SE BORRA LA SUC MAS ANTIGUA
+	Where IdSucursal = @sucDel
 
 	DELETE From Sucursal
 	Where IdSucursal = @sucDel
