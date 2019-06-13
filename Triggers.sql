@@ -1,20 +1,21 @@
 /*a.	Cuando se ingrese un movimiento de tipo Transferencia, realizar un disparador que registre dicha 
 transferencia en la tabla correspondiente*/
+
 CREATE TRIGGER MovimientoTransfer
 ON Movimiento
-AFTER INSERT --AGARRAR EL "C" E INCERTAR LOS QUE SON DE TIPO T
+AFTER INSERT --AGARRAR EL "C" E INSERTAR LOS QUE SON DE TIPO T
 AS
 BEGIN
-	INSERT INTO Transferencia Select i.FchMovim, i.IdMovim, null/*TipoTransfer*/, i.IdCuenta /*, BancoDestino, Status???*/
+	INSERT INTO Transferencia Select i.FchMovim, i.IdMovim, null, i.IdCuenta, null, null
 								From inserted i, Cuenta c
 								Where i.IdCuenta = c.IdCuenta and
 									(i.TipoMovim IN ('T'))
 END
 
-/*b.	Crear un disparador que al modificarse el importe de un movimiento deje un registro en una tabla de auditoría, 
+/*b.	Crear un disparador que al modificarse el importe de un movimiento deje un registro en una tabla de auditorï¿½a, 
 esta tabla debe tener la siguiente estructura:
 Auditoria(idAudit,fchAudit,idMovim,idCliente,NombreCliente,ImporteAnterior,ImporteActual)
-El campo idAudit debe ser autoincremental y fchAudit también debe registrar la hora*/
+El campo idAudit debe ser autoincremental y fchAudit tambiï¿½n debe registrar la hora*/
 CREATE TABLE Auditoria(idAudit int not null identity,
 						fchAudit datetime,
 						idMovim numeric(5,0) Foreign key references Movimiento(IdMovim),
@@ -71,7 +72,7 @@ BEGIN
 END
 
 /*e.	Implementar un disparador que controle el borrado de una sucursal, para permitir el mismo, dicho disparador debe 
-“mover” antes todas las cuentas a la sucursal más antigua del banco (obtener la sucursal más antigua de acuerdo a los movimientos).*/
+ï¿½moverï¿½ antes todas las cuentas a la sucursal mï¿½s antigua del banco (obtener la sucursal mï¿½s antigua de acuerdo a los movimientos).*/
 
 ALTER TRIGGER borradoSucursar
 ON Sucursal
