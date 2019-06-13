@@ -12,10 +12,14 @@ BEGIN
 									(i.TipoMovim IN ('T'))
 END
 
+insert into Movimiento values(getdate(),'T',1, 2000);
+select * from Transferencia
+
 /*b.	Crear un disparador que al modificarse el importe de un movimiento deje un registro en una tabla de auditor�a, 
 esta tabla debe tener la siguiente estructura:
 Auditoria(idAudit,fchAudit,idMovim,idCliente,NombreCliente,ImporteAnterior,ImporteActual)
 El campo idAudit debe ser autoincremental y fchAudit tambi�n debe registrar la hora*/
+
 CREATE TABLE Auditoria(idAudit int not null identity,
 						fchAudit datetime,
 						idMovim numeric(5,0) Foreign key references Movimiento(IdMovim),
@@ -23,7 +27,7 @@ CREATE TABLE Auditoria(idAudit int not null identity,
 						NombreCliente varchar(30),
 						ImporteAnterior int,
 						ImporteActual int)
-
+						
 
 CREATE TRIGGER auditMovimiento
 ON Movimiento
@@ -31,12 +35,19 @@ AFTER UPDATE
 AS
 BEGIN
 	INSERT INTO Auditoria 
-	Select i.IdMovim, c.IdCuenta, cli.NombreCliente, c.SaldoCuenta as ImporteActual, 
+	Select i.FchMovim, i.IdMovim,  c.IdCuenta, cli.NombreCliente, c.SaldoCuenta as ImporteActual, 
 				(c.SaldoCuenta - i.ImporteMovim) as ImporteAnterior
 	From inserted i, Cuenta c, Cliente cli
 	Where i.IdCuenta = c.IdCuenta and
 			c.IdCliente = cli.IdCliente
 END
+
+UPDATE MOVIMIENTO
+SET ImporteMovim = 3000
+WHERE IDCUENTA = 10
+
+SELECT * FROM Movimiento
+SELECT * FROM AUDITORIA
 
 /*c.	Mediante el uso de un disparador, no permitir ingresar un Movimiento de Salida de una cuenta que no tenga saldo.*/
 CREATE TRIGGER movimientoSalida
@@ -52,24 +63,31 @@ BEGIN
 								i.TipoMovim = 'E'
 END
 
+insert into Movimiento values(getdate(),'S',20, 2000);
+select * from cuenta
+select * from Movimiento
 /*d.	Mediante un disparador, no permitir crear una nueva cuenta si 
 el cliente ya tiene una cuenta en la misma moneda y en la misma sucursal.*/
+
 CREATE TRIGGER cuentasRepetidas
 ON Cuenta
 INSTEAD OF INSERT
 AS
 BEGIN
 	IF (Select IdCliente
-		From Inserted) in (Select IdCliente
+		From Inserted) = (Select IdCliente
 							From Cuenta c, Sucursal s
 							Where c.IdSucursal = s.IdSucursal and
 									c.IdMoneda != (Select IdMoneda
 													From inserted))
 	BEGIN
-		INSERT INTO Cuenta Select IdTipo, IdMoneda, IdSucursal, IdCliente 
+		INSERT INTO Cuenta Select IdTipo, IdMoneda, IdSucursal, IdCliente, SaldoCuenta
 							from inserted
 	END
 END
+
+select * from cuenta
+insert into cuenta values('CC',1, 'S0001', 1, 1000)
 
 /*e.	Implementar un disparador que controle el borrado de una sucursal, para permitir el mismo, dicho disparador debe 
 �mover� antes todas las cuentas a la sucursal m�s antigua del banco (obtener la sucursal m�s antigua de acuerdo a los movimientos).*/

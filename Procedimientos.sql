@@ -32,18 +32,19 @@ AS
 BEGIN
 	UPDATE Cuenta
 	
-	SET SaldoCuenta = (SELECT SUM(importeMovim)
+	SET SaldoCuenta = ISNULL((SELECT SUM(importeMovim)
 					  FROM Movimiento
 					  WHERE cuenta.IdCuenta = Movimiento.IdCuenta AND
-					  Movimiento.TipoMovim = 'E') - (SELECT SUM(importeMovim)
+					  Movimiento.TipoMovim = 'E'), 0) - ISNULL((SELECT SUM(importeMovim)
 													  FROM Movimiento
 													  WHERE cuenta.IdCuenta = Movimiento.IdCuenta AND
-													  Movimiento.TipoMovim IN ('S', 'T'))
+													  Movimiento.TipoMovim IN ('S', 'T')), 0)
 END
 
 select * from cuenta
 
 EXECUTE generarSaldos
+
 
 
 -- E) Crear un procedimiento o función ‘sobregiroClienteUSD’, según corresponda, 
