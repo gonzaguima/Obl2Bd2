@@ -12,8 +12,6 @@ BEGIN
 									(i.TipoMovim IN ('T'))
 END
 
-insert into Movimiento values(getdate(),'T',1, 2000);
-select * from Transferencia
 
 /*b.	Crear un disparador que al modificarse el importe de un movimiento deje un registro en una tabla de auditor�a, 
 esta tabla debe tener la siguiente estructura:
@@ -42,12 +40,6 @@ BEGIN
 			c.IdCliente = cli.IdCliente
 END
 
-UPDATE MOVIMIENTO
-SET ImporteMovim = 3000
-WHERE IDCUENTA = 10
-
-SELECT * FROM Movimiento
-SELECT * FROM AUDITORIA
 
 /*c.	Mediante el uso de un disparador, no permitir ingresar un Movimiento de Salida de una cuenta que no tenga saldo.*/
 CREATE TRIGGER movimientoSalida
@@ -63,9 +55,6 @@ BEGIN
 								i.TipoMovim = 'E'
 END
 
-insert into Movimiento values(getdate(),'S',20, 2000);
-select * from cuenta
-select * from Movimiento
 /*d.	Mediante un disparador, no permitir crear una nueva cuenta si 
 el cliente ya tiene una cuenta en la misma moneda y en la misma sucursal.*/
 
@@ -75,7 +64,7 @@ INSTEAD OF INSERT
 AS
 BEGIN
 	IF (Select IdCliente
-		From Inserted) = (Select IdCliente
+		From Inserted) NOT IN (Select IdCliente
 							From Cuenta c, Sucursal s
 							Where c.IdSucursal = s.IdSucursal and
 									c.IdMoneda != (Select IdMoneda
@@ -86,13 +75,12 @@ BEGIN
 	END
 END
 
-select * from cuenta
-insert into cuenta values('CC',1, 'S0001', 1, 1000)
+
 
 /*e.	Implementar un disparador que controle el borrado de una sucursal, para permitir el mismo, dicho disparador debe 
 �mover� antes todas las cuentas a la sucursal m�s antigua del banco (obtener la sucursal m�s antigua de acuerdo a los movimientos).*/
 
-ALTER TRIGGER borradoSucursar
+CREATE TRIGGER borradoSucursar
 ON Sucursal
 INSTEAD OF DELETE
 AS
@@ -125,3 +113,7 @@ BEGIN
 	DELETE From Sucursal
 	Where IdSucursal = @sucDel
 END
+
+
+
+
